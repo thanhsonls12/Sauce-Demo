@@ -45,9 +45,13 @@ export class ProductPage {
       (response) =>
         response.url().includes('/cart/add.js') && response.request().method() === 'POST'
     );
+    const cartResponse = this.page.waitForResponse(
+      (response) => response.url().includes('/cart.js') && response.request().method() === 'GET'
+    );
 
     await this.addToCartButton.click();
     await addToCartResponse;
+    await cartResponse;
   }
 
   async expectAddToCartVisible() {

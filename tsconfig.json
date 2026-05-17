@@ -1,18 +1,18 @@
 {
-"compilerOptions":{
-"target":"ESNext",
-"module":"commonjs",
-"moduleResolution":"node",
-"ignoreDeprecations":"6.0",
-"baseUrl":".",
-"paths":{
-"@/*":["./*"]
-},
-"esModuleInterop":true,
-"skipLibCheck":true,
-"forceConsistentCasingInFileNames":true,
-"strict":false,
-"resolveJsonModule":true
-},
-"include":["tests/**/*","test-data/**/*","pages/**/*","utils/**/*","fixtures/**/*"]
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    // "ignoreDeprecations":"6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "resolveJsonModule": true
+  },
+  "include": ["tests/**/*", "test-data/**/*", "pages/**/*", "utils/**/*", "fixtures/**/*"]
 }

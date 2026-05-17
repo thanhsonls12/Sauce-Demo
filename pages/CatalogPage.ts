@@ -34,7 +34,10 @@ export class CatalogPage {
   }
 
   async openProduct(productName: string | RegExp) {
-    await this.productLink(productName).click();
+    const href = await this.productLink(productName).first().getAttribute('href');
+    const canonicalHref = href?.replace(/^\/collections\/[^/]+/, '');
+
+    await this.page.goto(canonicalHref ?? href ?? '');
   }
 
   async expectSoldOutVisible() {

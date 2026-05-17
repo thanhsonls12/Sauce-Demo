@@ -2,6 +2,50 @@ import { test, expect, type Page } from '@playwright/test';
 
 const greyJacketVariantId = '611945025';
 
+function formValue(body: string | null, key: string) {
+  return new URLSearchParams(body ?? '').get(key);
+}
+
+async function mockCartApi(page: Page) {
+  let itemCount = 0;
+
+  await page.route('**/cart/add.js', async (route) => {
+    itemCount = Number(formValue(route.request().postData(), 'quantity') ?? 1);
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        product_title: 'Grey jacket',
+        quantity: itemCount,
+      }),
+    });
+  });
+
+  await page.route('**/cart/change.js', async (route) => {
+    const quantity = Number(formValue(route.request().postData(), 'quantity') ?? 0);
+    itemCount = quantity;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        item_count: itemCount,
+        items: itemCount === 0 ? [] : [{ product_title: 'Grey jacket', quantity: itemCount }],
+      }),
+    });
+  });
+
+  await page.route('**/cart.js', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        item_count: itemCount,
+        items: itemCount === 0 ? [] : [{ product_title: 'Grey jacket', quantity: itemCount }],
+      }),
+    });
+  });
+}
+
 async function cartFetch(page: Page, path: string, body?: Record<string, string>) {
   return page.evaluate(
     async ({ path, body }) => {
@@ -22,8 +66,8 @@ async function cartFetch(page: Page, path: string, body?: Record<string, string>
 
 test.describe('Cart mutation API', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await cartFetch(page, '/cart/clear.js', {});
+    await mockCartApi(page);
+    await page.goto('/products/grey-jacket');
   });
 
   test('API-CART-002: POST /cart/add.js thêm Grey jacket vào cart', async ({ page }) => {

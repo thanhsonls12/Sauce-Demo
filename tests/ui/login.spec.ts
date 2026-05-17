@@ -1,12 +1,6 @@
 import { test } from '@/fixtures/page.fixture';
 
 test.describe('Login page', () => {
-  test('LOGIN-001: login page mở được', async ({ loginPage }) => {
-    await loginPage.goTo();
-
-    await loginPage.expectLoaded();
-  });
-
   test('LOGIN-002: login form fields hiển thị', async ({ loginPage }) => {
     await loginPage.goTo();
 

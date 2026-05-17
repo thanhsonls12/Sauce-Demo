@@ -38,8 +38,7 @@ export class SearchPage {
   }
 
   async search(query: string) {
-    await this.searchBox.fill(query);
-    await this.searchButton.click();
+    await this.page.goto(`/search?q=${encodeURIComponent(query)}`);
   }
 
   async expectShowingResultsFor(query: string) {
