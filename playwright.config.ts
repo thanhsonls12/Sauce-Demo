@@ -7,14 +7,15 @@ import {
   viewport,
 } from './config/browser';
 import { loadDotenv } from './config/env';
-import { storageStatePath } from './config/storage';
+import { guestStorageStatePath, storageStatePath } from './config/storage';
+import { timeouts } from './config/timeouts';
 
 loadDotenv();
 
 export default defineConfig({
   testDir: './tests',
   globalSetup: './global-setup.ts',
-  timeout: 30_000,
+  timeout: timeouts.test,
   retries: 0,
   workers: 1,
   reporter: 'html',
@@ -24,7 +25,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: screenshotMode,
     video: videoMode,
-    storageState: storageStatePath,
+    storageState: guestStorageStatePath,
     viewport,
     locale: 'en-US',
     launchOptions: { args: browserLaunchArgs },
@@ -35,6 +36,7 @@ export default defineConfig({
       name: 'chromium',
       testIgnore: ['**/tests/real/**'],
       use: {
+        channel: (process.env.PLAYWRIGHT_CHANNEL as 'chrome' | 'chromium') ?? 'chrome',
         userAgent: spoofedUserAgent,
         viewport,
         launchOptions: { args: browserLaunchArgs },
@@ -43,11 +45,12 @@ export default defineConfig({
     {
       name: 'real',
       testMatch: ['**/tests/real/**'],
-      timeout: 90_000,
+      timeout: timeouts.realTest,
       use: {
         channel: (process.env.PLAYWRIGHT_CHANNEL as 'chrome' | 'chromium') ?? 'chrome',
+        storageState: storageStatePath,
         viewport,
-        navigationTimeout: 30_000,
+        navigationTimeout: timeouts.navigation,
         launchOptions: {
           headless: false,
           args: browserLaunchArgs,

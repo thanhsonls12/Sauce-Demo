@@ -1,17 +1,20 @@
 import { expect, test } from '@/fixtures/page.fixture';
 import { cartFetch } from '@/tests/support/api/cart';
 import { attachApiEvidence } from '@/tests/support/api/evidence';
+import { products, productVariants } from '@/test-data/products';
+import { routes } from '@/test-data/routes';
 
-const greyJacketVariantId = '611945025';
+const greyJacket = products.find((p) => p.name === 'Grey jacket')!;
+const { variantId: greyJacketVariantId } = productVariants.greyJacket;
 
 test.describe('API thay đổi giỏ hàng @real @mutation', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/cart/clear');
-    await page.goto('/products/grey-jacket');
+    await page.goto(routes.cartClear);
+    await page.goto(routes.products.greyJacket);
   });
 
   test.afterEach(async ({ page }) => {
-    await page.goto('/cart/clear');
+    await page.goto(routes.cartClear);
   });
 
   test('API-CART-002: POST /cart/add.js thêm Grey jacket vào giỏ hàng', async ({
@@ -23,7 +26,7 @@ test.describe('API thay đổi giỏ hàng @real @mutation', () => {
     });
 
     expect(addResponse.status).toBe(200);
-    expect(addResponse.body.product_title).toBe('Grey jacket');
+    expect(addResponse.body.product_title).toBe(greyJacket.name);
     expect(addResponse.body.quantity).toBe(1);
 
     const cartResponse = await cartFetch(page, '/cart.js');
@@ -59,7 +62,7 @@ test.describe('API thay đổi giỏ hàng @real @mutation', () => {
       ],
       expected: {
         addStatus: 200,
-        product_title: 'Grey jacket',
+        product_title: greyJacket.name,
         quantity: 1,
         cartStatus: 200,
         item_count: 1,
@@ -68,7 +71,7 @@ test.describe('API thay đổi giỏ hàng @real @mutation', () => {
 
     expect(cartResponse.status).toBe(200);
     expect(cartResponse.body.item_count).toBe(1);
-    expect(cartResponse.body.items[0].product_title).toBe('Grey jacket');
+    expect(cartResponse.body.items[0].product_title).toBe(greyJacket.name);
   });
 
   test('API-CART-003: POST /cart/change.js xóa sản phẩm khỏi giỏ hàng', async ({

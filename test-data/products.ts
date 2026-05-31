@@ -44,3 +44,14 @@ export const products = [
 ] as const;
 
 export const featuredProducts = ['Grey jacket', 'Noir jacket', 'Striped top'] as const;
+
+export const productVariants = {
+  greyJacket: {
+    variantId: '611945025',
+  },
+  noirJacket: {
+    size: 'M',
+    color: 'Red',
+    displayText: 'M / Red - £60.00',
+  },
+} as const;

@@ -1,8 +1,9 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { routes } from '@/test-data/routes';
+import { BasePage } from './BasePage';
+import { timeouts } from '@/config/timeouts';
 
-export class HomePage {
-  readonly page: Page;
+export class HomePage extends BasePage {
   readonly slogan: Locator;
   readonly catalogLink: Locator;
   readonly loginLink: Locator;
@@ -17,7 +18,7 @@ export class HomePage {
   readonly logoutLink: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.slogan = page.getByText('Just a demo site showing off what Sauce can do.');
     this.catalogLink = page.getByRole('link', { name: 'Catalog' });
     this.loginLink = page.getByRole('banner').getByRole('link', { name: 'Log In' });
@@ -81,8 +82,8 @@ export class HomePage {
       await this.page.goto('/account/logout', { waitUntil: 'domcontentloaded' });
     }
 
-    await this.page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
-    await this.page.reload({ waitUntil: 'domcontentloaded', timeout: 15_000 }).catch(async () => {
+    await this.page.waitForLoadState('domcontentloaded', { timeout: timeouts.load }).catch(() => {});
+    await this.page.reload({ waitUntil: 'domcontentloaded', timeout: timeouts.load }).catch(async () => {
       await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     });
 

@@ -35,8 +35,10 @@ test.describe('Luồng login thật @real @e2e', () => {
     await homePage.goTo();
     await homePage.expectLoaded();
 
-    if (await homePage.accountLinkIsVisible()) {
-      return;
+    if (await homePage.logoutLinkIsVisible()) {
+      await homePage.logout();
+      await homePage.goTo();
+      await homePage.expectLoaded();
     }
 
     test.skip(
@@ -51,6 +53,7 @@ test.describe('Luồng login thật @real @e2e', () => {
     await loginPage.fillLoginForm(credentials.email, credentials.password);
     await loginPage.submitLoginForm();
     await loginPage.expectAccountLoaded();
+    await homePage.logout();
   });
 
   test('REAL-LOGIN-002: logout từ navbar khi đã login', async ({ homePage }) => {

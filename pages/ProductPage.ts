@@ -1,7 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class ProductPage {
-  readonly page: Page;
+export class ProductPage extends BasePage {
   readonly addToCartButton: Locator;
   readonly soldOutButton: Locator;
   readonly sizeSelect: Locator;
@@ -9,12 +9,16 @@ export class ProductPage {
   readonly variantSelect: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.addToCartButton = page.getByRole('button', { name: 'Add to Cart' });
     this.soldOutButton = page.getByRole('button', { name: 'Sold Out' });
     this.sizeSelect = page.locator('#product-select-option-0');
     this.colorSelect = page.locator('#product-select-option-1');
     this.variantSelect = page.locator('#product-select');
+  }
+
+  async expectLoaded() {
+    await expect(this.page).toHaveURL(/\/products\//);
   }
 
   async goTo(slug: string) {

@@ -4,12 +4,41 @@ import path from 'node:path';
 export const storageStatePath =
   process.env.PLAYWRIGHT_STORAGE_STATE ?? 'playwright/.auth/shopify.json';
 
+export const guestStorageStatePath =
+  process.env.PLAYWRIGHT_GUEST_STORAGE_STATE ?? 'playwright/.auth/guest.json';
+
 export function ensureStorageFile() {
   const dir = path.dirname(storageStatePath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
   if (!existsSync(storageStatePath)) {
     writeFileSync(storageStatePath, JSON.stringify({ cookies: [], origins: [] }));
+  }
+}
+
+export function writeGuestStorageFile() {
+  const dir = path.dirname(guestStorageStatePath);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+
+  if (!existsSync(storageStatePath)) {
+    writeFileSync(guestStorageStatePath, JSON.stringify({ cookies: [], origins: [] }));
+    return;
+  }
+
+  try {
+    const state = JSON.parse(readFileSync(storageStatePath, 'utf-8')) as {
+      cookies?: Array<{ name?: string }>;
+    };
+    const guestCookies = (state.cookies ?? []).filter(
+      (cookie) => !/customer|account|logged[_-]?in|session/i.test(cookie.name ?? '')
+    );
+
+    writeFileSync(
+      guestStorageStatePath,
+      JSON.stringify({ cookies: guestCookies, origins: [] })
+    );
+  } catch {
+    writeFileSync(guestStorageStatePath, JSON.stringify({ cookies: [], origins: [] }));
   }
 }
 

@@ -1,14 +1,16 @@
 import { expect, test } from '@/fixtures/page.fixture';
+import { products } from '@/test-data/products';
+import { routes } from '@/test-data/routes';
 
 test.describe('Luồng giỏ hàng thật @real @e2e @mutation', () => {
   test.describe.configure({ retries: 1 });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/cart/clear');
+    await page.goto(routes.cartClear);
   });
 
   test.afterEach(async ({ page }) => {
-    await page.goto('/cart/clear');
+    await page.goto(routes.cartClear);
   });
 
   test('REAL-CART-001: giỏ hàng rỗng thật hiển thị đúng và tiếp tục mua sắm quay về catalog', async ({
@@ -35,30 +37,32 @@ test.describe('Luồng giỏ hàng thật @real @e2e @mutation', () => {
     cartPage,
     page,
   }) => {
+    const greyJacket = products.find((p) => p.name === 'Grey jacket')!;
+
     await homePage.goTo();
     await homePage.expectLoaded();
     await homePage.goToCatalog();
     await catalogPage.expectLoaded();
-    await catalogPage.openProduct(/Grey jacket/i);
-    await productPage.expectProductVisible('Grey jacket', '£55.00');
+    await catalogPage.openProduct(new RegExp(greyJacket.name, 'i'));
+    await productPage.expectProductVisible(greyJacket.name, greyJacket.price);
 
     await productPage.addToCart();
 
     await cartPage.goTo();
     await expect(page.getByRole('heading', { name: 'My Cart' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Grey jacket/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: new RegExp(greyJacket.name, 'i') })).toBeVisible();
 
     const quantityInput = page.locator('input[name="updates[]"]:visible').first();
 
     await expect(quantityInput).toHaveValue('1');
-    await expect(page.getByText('Total £55.00')).toBeVisible();
+    await expect(page.getByText(`Total ${greyJacket.price}`)).toBeVisible();
 
-    await page.goto('/cart', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await page.goto(routes.cart, { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
     await expect(page.getByRole('heading', { name: 'My Cart' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Grey jacket/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: new RegExp(greyJacket.name, 'i') })).toBeVisible();
     await expect(quantityInput).toHaveValue('1');
-    await expect(page.getByText('Total £55.00')).toBeVisible();
+    await expect(page.getByText(`Total ${greyJacket.price}`)).toBeVisible();
 
     await quantityInput.fill('2');
     await page.locator('input[name="update"]:visible').click();

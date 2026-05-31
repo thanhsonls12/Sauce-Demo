@@ -38,12 +38,14 @@ test.describe('Trang catalog @real', () => {
   });
 
   test('CAT-004: nhấn Grey jacket mở trang chi tiết sản phẩm', async ({ catalogPage, productPage }) => {
+    const greyJacket = products.find((p) => p.name === 'Grey jacket')!;
+
     await catalogPage.goTo();
     await catalogPage.expectLoaded();
 
-    await catalogPage.openProduct(/Grey jacket/i);
+    await catalogPage.openProduct(new RegExp(greyJacket.name, 'i'));
 
-    await productPage.expectProductUrl(/grey-jacket/);
-    await productPage.expectProductVisible('Grey jacket', '£55.00');
+    await productPage.expectProductUrl(new RegExp(greyJacket.slug));
+    await productPage.expectProductVisible(greyJacket.name, greyJacket.price);
   });
 });

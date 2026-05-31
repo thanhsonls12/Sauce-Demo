@@ -1,9 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { routes } from '@/test-data/routes';
+import { BasePage } from './BasePage';
+import { timeouts } from '@/config/timeouts';
 
-export class LoginPage {
-  readonly page: Page;
-
+export class LoginPage extends BasePage {
   readonly heading: Locator;
   readonly emailInput: Locator;
   readonly passwordInput: Locator;
@@ -15,7 +15,7 @@ export class LoginPage {
   readonly hcaptchaText: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
 
     this.heading = page.getByRole('heading', { name: 'Customer Login' });
     this.loginForm = page.locator('form[action$="/account/login"]');
@@ -77,7 +77,7 @@ export class LoginPage {
 
   async submitLoginForm() {
     await this.signInButton.click();
-    await this.page.waitForLoadState('domcontentloaded', { timeout: 30_000 }).catch(() => {});
+    await this.page.waitForLoadState('domcontentloaded', { timeout: timeouts.navigation }).catch(() => {});
   }
 
   async accountIsLoaded() {
@@ -87,7 +87,7 @@ export class LoginPage {
 
     return this.page
       .getByRole('heading', { name: 'Account Details and Order History' })
-      .isVisible({ timeout: 1_000 })
+      .isVisible({ timeout: timeouts.quick })
       .catch(() => false);
   }
 
@@ -96,7 +96,7 @@ export class LoginPage {
       name: 'Account Details and Order History',
     });
     try {
-      await expect(accountHeading).toBeVisible({ timeout: 30_000 });
+      await expect(accountHeading).toBeVisible({ timeout: timeouts.navigation });
     } catch (error) {
       if (await this.hcaptchaText.isVisible().catch(() => false)) {
         throw new Error(

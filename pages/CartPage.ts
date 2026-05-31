@@ -1,9 +1,8 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { routes } from '@/test-data/routes';
+import { BasePage } from './BasePage';
 
-export class CartPage {
-  readonly page: Page;
-
+export class CartPage extends BasePage {
   readonly heading: Locator;
   readonly emptyCartMessage: Locator;
   readonly continueShoppingLink: Locator;
@@ -11,7 +10,7 @@ export class CartPage {
   readonly checkoutButton: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
 
     this.heading = page.getByRole('heading', { name: 'My Cart' });
     this.emptyCartMessage = page.getByText('It appears that your cart is currently empty!');
@@ -45,7 +44,7 @@ export class CartPage {
 
   async expectProductVisible(name: string, price: string) {
     await expect(this.page.getByRole('heading', { name: new RegExp(name, 'i') })).toBeVisible();
-    await expect(this.page.getByText(price, { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(this.page.getByText(normalizePrice(price), { exact: true }).filter({ visible: true }).first()).toBeVisible();
   }
 
   async expectQuantity(quantity: string) {
@@ -76,4 +75,8 @@ export class CartPage {
   async checkout() {
     await this.checkoutButton.click();
   }
+}
+
+function normalizePrice(price: string) {
+  return price.replace('\u00c2£', '£');
 }

@@ -1,9 +1,8 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { routes } from '@/test-data/routes';
+import { BasePage } from './BasePage';
 
-export class SearchPage {
-  readonly page: Page;
-
+export class SearchPage extends BasePage {
   readonly heading: Locator;
   readonly noSearchPerformedText: Locator;
   readonly homepageLink: Locator;
@@ -11,7 +10,7 @@ export class SearchPage {
   readonly searchButton: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
 
     this.heading = page.getByRole('heading', { name: 'Search Results' });
     this.noSearchPerformedText = page.getByText(/No search performed/i);

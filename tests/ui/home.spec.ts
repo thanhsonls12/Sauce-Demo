@@ -1,5 +1,6 @@
 import { expect, test } from '@/fixtures/page.fixture';
-import { featuredProducts } from '../../test-data/products';
+import { featuredProducts } from '@/test-data/products';
+import { routes } from '@/test-data/routes';
 
 test.describe('Trang chủ @real', () => {
   test('HOME-001: trang chủ mở được và hiển thị slogan', async ({ homePage }) => {
@@ -26,7 +27,7 @@ test.describe('Trang chủ @real', () => {
     homePage,
     page,
   }) => {
-    await page.goto('/cart/clear');
+    await page.goto(routes.cartClear);
     await homePage.goTo();
 
     await expect(homePage.cartLink).toBeVisible();

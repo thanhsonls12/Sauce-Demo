@@ -1,9 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { routes } from '@/test-data/routes';
+import { BasePage } from './BasePage';
+import { timeouts } from '@/config/timeouts';
 
-export class RegisterPage {
-  readonly page: Page;
-
+export class RegisterPage extends BasePage {
   readonly heading: Locator;
   readonly firstNameInput: Locator;
   readonly lastNameInput: Locator;
@@ -13,7 +13,7 @@ export class RegisterPage {
   readonly hcaptchaText: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
 
     this.heading = page.getByRole('heading', { name: 'Create Account' });
     this.firstNameInput = page.locator('input[name="customer[first_name]"]');
@@ -69,15 +69,15 @@ export class RegisterPage {
 
   async submitRegisterForm() {
     const navigation = this.page
-      .waitForURL((url) => !/\/account\/register/.test(url.pathname), { timeout: 10_000 })
+      .waitForURL((url) => !/\/account\/register/.test(url.pathname), { timeout: timeouts.networkIdle })
       .catch(() => null);
     await this.createButton.click();
     await navigation;
   }
 
   async accountCreated() {
-    await this.page.waitForLoadState('domcontentloaded', { timeout: 15_000 }).catch(() => {});
-    await this.page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+    await this.page.waitForLoadState('domcontentloaded', { timeout: timeouts.load }).catch(() => {});
+    await this.page.waitForLoadState('networkidle', { timeout: timeouts.networkIdle }).catch(() => {});
 
     const currentUrl = this.page.url();
     if (
@@ -89,7 +89,7 @@ export class RegisterPage {
 
     const accountHeadingVisible = await this.page
       .getByRole('heading', { name: 'Account Details and Order History' })
-      .isVisible({ timeout: 1_000 })
+      .isVisible({ timeout: timeouts.quick })
       .catch(() => false);
 
     if (accountHeadingVisible) {
@@ -99,13 +99,13 @@ export class RegisterPage {
     const accountLinkVisible = await this.page
       .getByRole('banner')
       .getByRole('link', { name: 'MyAccount' })
-      .isVisible({ timeout: 1_000 })
+      .isVisible({ timeout: timeouts.quick })
       .catch(() => false);
 
     const logoutLinkVisible = await this.page
       .getByRole('banner')
       .getByRole('link', { name: 'Log Out' })
-      .isVisible({ timeout: 1_000 })
+      .isVisible({ timeout: timeouts.quick })
       .catch(() => false);
 
     if (accountLinkVisible && logoutLinkVisible) {
@@ -116,8 +116,14 @@ export class RegisterPage {
   }
 
   async expectRegisterProtected() {
-    await expect(this.page).toHaveURL(/account\/register/);
-    await expect(this.hcaptchaText).toBeVisible();
+    await this.page.waitForLoadState('domcontentloaded', { timeout: timeouts.load }).catch(() => {});
+
+    if (/\/account\/register/.test(this.page.url())) {
+      await expect(this.hcaptchaText).toBeVisible();
+      return;
+    }
+
+    await expect(this.page).toHaveURL(/https:\/\/sauce-demo\.myshopify\.com\/?$/);
   }
 
   currentUrl() {

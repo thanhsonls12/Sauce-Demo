@@ -1,4 +1,5 @@
 import { test } from '@/fixtures/page.fixture';
+import { products } from '@/test-data/products';
 
 test.describe('Luồng tìm kiếm thật @real @e2e', () => {
   test('REAL-SEARCH-001: tìm kiếm từ header và mở chi tiết Grey jacket', async ({
@@ -6,6 +7,8 @@ test.describe('Luồng tìm kiếm thật @real @e2e', () => {
     searchPage,
     productPage,
   }) => {
+    const greyJacket = products.find((p) => p.name === 'Grey jacket')!;
+
     await homePage.goTo();
     await homePage.expectLoaded();
 
@@ -13,11 +16,11 @@ test.describe('Luồng tìm kiếm thật @real @e2e', () => {
 
     await searchPage.expectLoaded();
     await searchPage.expectShowingResultsFor('jacket');
-    await searchPage.expectResultVisible(/Grey jacket/i);
+    await searchPage.expectResultVisible(new RegExp(greyJacket.name, 'i'));
 
-    await searchPage.openResult(/Grey jacket/i);
+    await searchPage.openResult(new RegExp(greyJacket.name, 'i'));
 
-    await productPage.expectProductUrl(/products\/grey-jacket/);
-    await productPage.expectProductVisible('Grey jacket', 'Â£55.00');
+    await productPage.expectProductUrl(new RegExp(`products/${greyJacket.slug}`));
+    await productPage.expectProductVisible(greyJacket.name, greyJacket.price);
   });
 });

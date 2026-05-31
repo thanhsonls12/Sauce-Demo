@@ -15,6 +15,12 @@ test.describe('Luồng register thật @real @e2e @mutation', () => {
     await homePage.goTo();
     await homePage.expectLoaded();
 
+    if (await homePage.logoutLinkIsVisible()) {
+      await homePage.logout();
+      await homePage.goTo();
+      await homePage.expectLoaded();
+    }
+
     await homePage.goToRegister();
 
     await registerPage.expectLoaded();
@@ -46,6 +52,7 @@ test.describe('Luồng register thật @real @e2e @mutation', () => {
         body: JSON.stringify({ email, password, path: accountPath }, null, 2),
         contentType: 'application/json',
       });
+      await homePage.logout();
       return;
     }
 

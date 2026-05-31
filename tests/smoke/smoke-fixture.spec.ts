@@ -1,4 +1,5 @@
 import { expect, test } from '@/fixtures/page.fixture';
+import { products } from '@/test-data/products';
 import { routes } from '@/test-data/routes';
 
 test.describe('Kiểm tra khói với fixture @real', () => {
@@ -15,17 +16,21 @@ test.describe('Kiểm tra khói với fixture @real', () => {
   });
 
   test('PROD-001: trang chi tiết Grey jacket mở được', async ({ productPage }) => {
-    await productPage.goTo('grey-jacket');
+    const greyJacket = products.find((p) => p.name === 'Grey jacket')!;
 
-    await productPage.expectProductUrl(/grey-jacket/);
-    await productPage.expectProductVisible('Grey jacket', '£55.00');
+    await productPage.goTo(greyJacket.slug);
+
+    await productPage.expectProductUrl(new RegExp(greyJacket.slug));
+    await productPage.expectProductVisible(greyJacket.name, greyJacket.price);
   });
 
   test('PROD-002: trang chi tiết Noir jacket mở được', async ({ productPage }) => {
-    await productPage.goTo('noir-jacket');
+    const noirJacket = products.find((p) => p.name === 'Noir jacket')!;
 
-    await productPage.expectProductUrl(/noir-jacket/);
-    await productPage.expectProductVisible('Noir jacket', '£60.00');
+    await productPage.goTo(noirJacket.slug);
+
+    await productPage.expectProductUrl(new RegExp(noirJacket.slug));
+    await productPage.expectProductVisible(noirJacket.name, noirJacket.price);
   });
 
   test('LOGIN-001: trang login mở được', async ({ loginPage }) => {

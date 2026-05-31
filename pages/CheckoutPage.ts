@@ -1,8 +1,7 @@
 ﻿import { expect, type Locator, type Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class CheckoutPage {
-  readonly page: Page;
-
+export class CheckoutPage extends BasePage {
   readonly emailInput: Locator;
   readonly firstNameInput: Locator;
   readonly lastNameInput: Locator;
@@ -14,7 +13,7 @@ export class CheckoutPage {
   readonly payNowBtn: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
 
     this.emailInput = page.getByPlaceholder(/Email/i).or(page.getByLabel(/Email/i)).first();
     this.firstNameInput = page

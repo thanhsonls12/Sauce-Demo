@@ -2,6 +2,7 @@ export const routes = {
   home: '/',
   catalog: '/collections/all',
   cart: '/cart',
+  cartClear: '/cart/clear',
   login: '/account/login',
   register: '/account/register',
   search: '/search',

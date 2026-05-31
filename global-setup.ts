@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { loadDotenv, envFlag } from './config/env';
-import { ensureStorageFile, hasValidCloudflareSession } from './config/storage';
+import { ensureStorageFile, hasValidCloudflareSession, writeGuestStorageFile } from './config/storage';
 
 loadDotenv();
 
@@ -29,6 +29,7 @@ function acquireSessionViaCamoufox() {
 
 export default async function globalSetup() {
   ensureStorageFile();
+  writeGuestStorageFile();
 
   if (process.env.PLAYWRIGHT_SKIP_AUTH_SETUP === '1') {
     console.log('[global-setup] PLAYWRIGHT_SKIP_AUTH_SETUP=1, skipping auth setup.');
@@ -51,4 +52,5 @@ export default async function globalSetup() {
   }
 
   acquireSessionViaCamoufox();
+  writeGuestStorageFile();
 }
