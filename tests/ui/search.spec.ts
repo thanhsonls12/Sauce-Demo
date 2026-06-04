@@ -1,4 +1,5 @@
 import { expect, test } from '@/fixtures/page.fixture';
+import { products } from '@/test-data/products';
 
 test.describe('Trang tìm kiếm @real', () => {
   test('SEARCH-001: trang tìm kiếm mở được', async ({ searchPage }) => {
@@ -68,5 +69,56 @@ test.describe('Trang tìm kiếm @real', () => {
     await searchPage.expectShowingResultsFor('sandals');
     await searchPage.expectResultVisible(/Bronze sandals/i);
     await searchPage.expectResultVisible(/White sandals/i);
+  });
+
+  test('SEARCH-VAL-001: empty search query hiển thị validation message', async ({ searchPage }) => {
+    await searchPage.goTo();
+    await searchPage.expectLoaded();
+
+    await searchPage.searchButton.click();
+
+    await searchPage.expectLoaded();
+    await searchPage.expectEmptySearchState();
+  });
+
+  test('SEARCH-VAL-002: tìm kiếm ký tự đặc biệt không trả về toàn bộ products', async ({
+    searchPage,
+  }) => {
+    await searchPage.goTo();
+    await searchPage.expectLoaded();
+
+    await searchPage.search('*');
+    await searchPage.expectLoaded();
+
+    const visibleProducts = await searchPage.visibleResultCount(products.map((product) => product.name));
+
+    expect(visibleProducts).toBeLessThan(products.length);
+  });
+
+  test('SEARCH-SEC-001: tìm kiếm SQLi, XSS, HTML injection không trả về sản phẩm', async ({
+    page,
+    searchPage,
+  }) => {
+    const dialogs: string[] = [];
+    page.on('dialog', async (dialog) => {
+      dialogs.push(dialog.message());
+      await dialog.dismiss();
+    });
+
+    const payloads = ["' OR '1'='1", '<script>alert("XSS")</script>', '<b>test</b>'];
+
+    for (const payload of payloads) {
+      await searchPage.goTo();
+      await searchPage.expectLoaded();
+
+      await searchPage.search(payload);
+      await searchPage.expectLoaded();
+
+      const visibleProducts = await searchPage.visibleResultCount(products.map((product) => product.name));
+
+      expect(visibleProducts).toBe(0);
+    }
+
+    expect(dialogs).toEqual([]);
   });
 });

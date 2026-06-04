@@ -7,6 +7,8 @@ export const routes = {
   register: '/account/register',
   search: '/search',
   about: '/pages/about-us',
+  wishList: '/pages/wish-list',
+  referAFriend: '/pages/refer-a-friend',
   blog: '/blogs/news',
   products: {
     greyJacket: '/products/grey-jacket',

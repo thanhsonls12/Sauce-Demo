@@ -13,6 +13,8 @@ export class HomePage extends BasePage {
   readonly searchBox: Locator;
   readonly searchButton: Locator;
   readonly aboutUsLink: Locator;
+  readonly wishListLink: Locator;
+  readonly referAFriendLink: Locator;
   readonly cartLink: Locator;
   readonly accountLink: Locator;
   readonly logoutLink: Locator;
@@ -28,6 +30,8 @@ export class HomePage extends BasePage {
     this.searchBox = page.getByRole('banner').getByRole('textbox', { name: 'Search' });
     this.searchButton = page.getByRole('banner').getByRole('button', { name: 'Submit' });
     this.aboutUsLink = page.getByRole('link', { name: 'About us' }).first();
+    this.wishListLink = page.getByRole('link', { name: 'Wish List' }).first();
+    this.referAFriendLink = page.getByRole('link', { name: 'Refer a Friend' }).first();
     this.cartLink = page.getByRole('banner').getByRole('link', { name: 'Check Out' });
     this.accountLink = page.getByRole('banner').getByRole('link', { name: 'MyAccount' });
     this.logoutLink = page.getByRole('banner').getByRole('link', { name: 'Log Out' });
@@ -48,6 +52,8 @@ export class HomePage extends BasePage {
     await expect(this.blogLink).toBeVisible();
     await expect(this.searchLink).toBeVisible();
     await expect(this.aboutUsLink).toBeVisible();
+    await expect(this.wishListLink).toBeVisible();
+    await expect(this.referAFriendLink).toBeVisible();
     await expect(this.cartLink).toBeVisible();
   }
 
@@ -106,6 +112,14 @@ export class HomePage extends BasePage {
 
   async goToAboutUs() {
     await this.aboutUsLink.click();
+  }
+
+  async goToWishList() {
+    await this.wishListLink.click();
+  }
+
+  async goToReferAFriend() {
+    await this.referAFriendLink.click();
   }
 
   async goToCart() {

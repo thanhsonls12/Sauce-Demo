@@ -1,5 +1,6 @@
 ﻿import { expect, test } from '@/fixtures/page.fixture';
 import { products } from '@/test-data/products';
+import { routes } from '@/test-data/routes';
 
 test.describe('Luồng thanh toán đầu cuối @real @e2e @mutation', () => {
   test('REAL-CHECKOUT-001: người dùng có thể thêm sản phẩm vào giỏ và đi đến trang thanh toán', async ({
@@ -37,5 +38,26 @@ test.describe('Luồng thanh toán đầu cuối @real @e2e @mutation', () => {
     });
 
     await expect(checkoutPage.payNowBtn).toBeVisible();
+  });
+
+  test('CHECKOUT-VAL-001: checkout với empty cart redirect về trang cart', async ({
+    page,
+    cartPage,
+    checkoutPage,
+  }) => {
+    await page.goto(routes.cartClear);
+    await cartPage.goTo();
+    await cartPage.expectLoaded();
+    await cartPage.expectCartEmpty();
+
+    const checkoutButtonVisible = await cartPage.checkoutButton.isVisible().catch(() => false);
+
+    if (checkoutButtonVisible) {
+      await cartPage.checkout();
+      await cartPage.expectLoaded();
+      await cartPage.expectCartEmpty();
+    } else {
+      await expect(cartPage.checkoutButton).not.toBeVisible();
+    }
   });
 });

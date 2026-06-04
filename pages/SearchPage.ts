@@ -49,6 +49,18 @@ export class SearchPage extends BasePage {
     await expect(this.page.getByRole('link', { name: productName })).toBeVisible();
   }
 
+  async visibleResultCount(productNames: readonly (string | RegExp)[]) {
+    let count = 0;
+
+    for (const productName of productNames) {
+      if (await this.page.getByRole('link', { name: productName }).first().isVisible().catch(() => false)) {
+        count += 1;
+      }
+    }
+
+    return count;
+  }
+
   async openResult(productName: string | RegExp) {
     await this.page.getByRole('link', { name: productName }).first().click();
   }

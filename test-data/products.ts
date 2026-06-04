@@ -2,7 +2,7 @@ export const products = [
   {
     name: 'Black heels',
     price: '£45.00',
-    slug: 'flower-print-jeans',
+    slug: 'black-heels',
     soldOut: false,
   },
   {

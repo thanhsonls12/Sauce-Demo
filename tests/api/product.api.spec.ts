@@ -1,68 +1,65 @@
 import { expect, test } from '@playwright/test';
-import { products } from '@/test-data/products';
-import { attachApiEvidence, readApiResponse } from '@/tests/support/api/evidence';
 
 test.describe('API sản phẩm @real', () => {
-  products.forEach((product) => {
-    test(`API-PROD: GET /products/${product.slug}.js trả về ${product.name}`, async ({
-      request,
-    }, testInfo) => {
-      const response = await request.get(`/products/${product.slug}.js`);
-      const body = await readApiResponse(response);
-
-      await attachApiEvidence(testInfo, `product-${product.slug}`, {
-        request: {
-          method: 'GET',
-          url: `/products/${product.slug}.js`,
-        },
-        response: {
-          status: response.status(),
-          body:
-            typeof body === 'object' && body !== null
-              ? {
-                  title: 'title' in body ? body.title : undefined,
-                  handle: 'handle' in body ? body.handle : undefined,
-                  variantsCount:
-                    'variants' in body && Array.isArray(body.variants)
-                      ? body.variants.length
-                      : undefined,
-                }
-              : body,
-        },
-        expected: {
-          status: 200,
-          title: product.name,
-          handle: product.slug,
-          variants: 'array',
-        },
-      });
-
-      expect(response.status()).toBe(200);
-      expect(body.title).toBe(product.name);
-      expect(body.handle).toBe(product.slug);
-      expect(body).toHaveProperty('variants');
-      expect(Array.isArray(body.variants)).toBe(true);
+  test('API-PROD-001: GET available product trả về schema và variant available', async ({
+    request,
+  }) => {
+    const response = await request.get('/products/grey-jacket.js', {
+      headers: { Accept: 'application/json' },
     });
+
+    expect(response.status()).toBe(200);
+
+    const body = await response.json();
+    const variant = body.variants[0];
+
+    expect(body).toHaveProperty('id');
+    expect(body.title).toBe('Grey jacket');
+    expect(body.handle).toBe('grey-jacket');
+    expect(Array.isArray(body.variants)).toBe(true);
+    expect(body.variants.length).toBeGreaterThan(0);
+
+    expect(variant).toHaveProperty('id');
+    expect(variant).toHaveProperty('price');
+    expect(variant.available).toBe(true);
   });
 
-  test('API-PROD-404: GET sản phẩm không tồn tại trả về 404', async ({ request }, testInfo) => {
-    const response = await request.get('/products/not-exist-product.js');
-    const body = await readApiResponse(response);
-
-    await attachApiEvidence(testInfo, 'product-not-found', {
-      request: {
-        method: 'GET',
-        url: '/products/not-exist-product.js',
-      },
-      response: {
-        status: response.status(),
-        body,
-      },
-      expected: {
-        status: 404,
-      },
+  test('API-PROD-002: GET sold-out product trả về variant unavailable', async ({ request }) => {
+    const response = await request.get('/products/brown-shades.js', {
+      headers: { Accept: 'application/json' },
     });
 
+    expect(response.status()).toBe(200);
+
+    const body = await response.json();
+
+    expect(body.title).toBe('Brown Shades');
+    expect(body.handle).toBe('brown-shades');
+    expect(Array.isArray(body.variants)).toBe(true);
+    expect(body.variants.length).toBeGreaterThan(0);
+    expect(body.variants.every((variant) => variant.available === false)).toBe(true);
+  });
+
+  test('API-PROD-404: GET sản phẩm không tồn tại trả về 404', async ({ request }) => {
+    const response = await request.get('/products/not-exist-product.js');
+
     expect(response.status()).toBe(404);
+  });
+
+  test('PRODUCT-ERR-001: GET product API với malicious slug bị reject và không 5xx', async ({
+    request,
+  }) => {
+    const maliciousSlugs = [
+      '../../../etc/passwd',
+      "product' OR '1'='1",
+      "product'; DROP TABLE products--",
+    ];
+
+    for (const slug of maliciousSlugs) {
+      const response = await request.get(`/products/${encodeURIComponent(slug)}.js`);
+
+      expect([400, 404]).toContain(response.status());
+      expect(response.status()).toBeLessThan(500);
+    }
   });
 });

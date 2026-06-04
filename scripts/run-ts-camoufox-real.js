@@ -34,26 +34,21 @@ if (!hasExplicitProject) {
 
 testArgs.push(...userArgs);
 
-const result = spawnSync(
-  'npx',
-  testArgs,
-  {
-    cwd: process.cwd(),
-    env: {
-      ...process.env,
-      PLAYWRIGHT_CAMOUFOX: '1',
-      PLAYWRIGHT_SKIP_AUTH_SETUP: '1',
-      PLAYWRIGHT_VIDEO:
-        process.env.PLAYWRIGHT_VIDEO || (runsRealTests ? 'on' : 'retain-on-failure'),
-      PLAYWRIGHT_SCREENSHOT:
-        process.env.PLAYWRIGHT_SCREENSHOT || (runsRealTests ? 'on' : 'only-on-failure'),
-      CAMOUFOX_HEADLESS: process.env.CAMOUFOX_HEADLESS || (runsRealTests ? '0' : '1'),
-      CAMOUFOX_TS_WAIT_FOR_ENTER: process.env.CAMOUFOX_TS_WAIT_FOR_ENTER || '0',
-    },
-    shell: process.platform === 'win32',
-    stdio: 'inherit',
-  }
-);
+const result = spawnSync('npx', testArgs, {
+  cwd: process.cwd(),
+  env: {
+    ...process.env,
+    PLAYWRIGHT_CAMOUFOX: '1',
+    PLAYWRIGHT_SKIP_AUTH_SETUP: '1',
+    PLAYWRIGHT_VIDEO: process.env.PLAYWRIGHT_VIDEO || (runsRealTests ? 'on' : 'retain-on-failure'),
+    PLAYWRIGHT_SCREENSHOT:
+      process.env.PLAYWRIGHT_SCREENSHOT || (runsRealTests ? 'on' : 'only-on-failure'),
+    CAMOUFOX_HEADLESS: process.env.CAMOUFOX_HEADLESS || '0',
+    CAMOUFOX_TS_WAIT_FOR_ENTER: process.env.CAMOUFOX_TS_WAIT_FOR_ENTER || '0',
+  },
+  shell: process.platform === 'win32',
+  stdio: 'inherit',
+});
 
 if (result.error) {
   console.error(result.error.message);

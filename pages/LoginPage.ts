@@ -13,6 +13,7 @@ export class LoginPage extends BasePage {
   readonly loginForm: Locator;
   readonly signInButton: Locator;
   readonly hcaptchaText: Locator;
+  readonly invalidLoginError: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -26,6 +27,7 @@ export class LoginPage extends BasePage {
     this.resetPasswordHeading = page.getByRole('heading', { name: 'Reset Password' });
     this.resetEmailInput = page.locator('#recover-email');
     this.hcaptchaText = page.getByText('Protected by hCaptcha').first();
+    this.invalidLoginError = page.getByText(/incorrect email or password/i);
   }
 
   async goTo() {
@@ -78,6 +80,10 @@ export class LoginPage extends BasePage {
   async submitLoginForm() {
     await this.signInButton.click();
     await this.page.waitForLoadState('domcontentloaded', { timeout: timeouts.navigation }).catch(() => {});
+    if (await this.hcaptchaText.isVisible().catch(() => false)) {
+      await this.page.waitForTimeout(15_000).catch(() => {});
+      await this.page.waitForLoadState('domcontentloaded', { timeout: timeouts.navigation }).catch(() => {});
+    }
   }
 
   async accountIsLoaded() {
@@ -114,5 +120,34 @@ export class LoginPage extends BasePage {
   async expectInvalidLoginProtected() {
     await expect(this.page).toHaveURL(/account\/login/);
     await expect(this.hcaptchaText).toBeVisible();
+  }
+
+  async expectInvalidLoginError() {
+    await expect(this.page).toHaveURL(/account\/login/);
+    await expect(this.invalidLoginError).toBeVisible({ timeout: timeouts.navigation });
+  }
+
+  async expectEmailRequiredError() {
+    await expect(this.page.getByText(/email is required/i)).toBeVisible({
+      timeout: timeouts.navigation,
+    });
+  }
+
+  async expectPasswordRequiredError() {
+    await expect(this.page.getByText(/password is required/i)).toBeVisible({
+      timeout: timeouts.navigation,
+    });
+  }
+
+  async expectInvalidEmailFormatError() {
+    await expect(this.page.getByText(/enter a valid email address/i)).toBeVisible({
+      timeout: timeouts.navigation,
+    });
+  }
+
+  async expectPasswordTooShortError() {
+    await expect(this.page.getByText(/password must be at least/i)).toBeVisible({
+      timeout: timeouts.navigation,
+    });
   }
 }

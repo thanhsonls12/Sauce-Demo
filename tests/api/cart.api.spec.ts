@@ -1,38 +1,30 @@
-import { expect, test } from '@playwright/test';
-import { attachApiEvidence, readApiResponse } from '@/tests/support/api/evidence';
+import { expect, test } from '@/fixtures/page.fixture';
+import { routes } from '@/test-data/routes';
 
 test.describe('API giỏ hàng @real', () => {
-  test('API-CART-001: GET /cart.js trả về JSON giỏ hàng', async ({ request }, testInfo) => {
-    const response = await request.get('/cart.js');
-    const body = await readApiResponse(response);
+  test.beforeEach(async ({ page }) => {
+    await page.goto(routes.cartClear);
+  });
 
-    await attachApiEvidence(testInfo, 'cart-get', {
-      request: {
-        method: 'GET',
-        url: '/cart.js',
-      },
-      response: {
-        status: response.status(),
-        body:
-          typeof body === 'object' && body !== null
-            ? {
-                item_count: 'item_count' in body ? body.item_count : undefined,
-                itemsCount: 'items' in body && Array.isArray(body.items) ? body.items.length : undefined,
-              }
-            : body,
-      },
-      expected: {
-        status: 200,
-        items: 'array',
-        item_count: 'number',
-      },
+  test('API-CART-001: GET /cart.js trả về JSON giỏ hàng trống', async ({ page }) => {
+    const response = await page.request.get('/cart.js', {
+      headers: { Accept: 'application/json' },
     });
 
     expect(response.status()).toBe(200);
+
+    const body = await response.json();
+
     expect(body).toHaveProperty('items');
     expect(Array.isArray(body.items)).toBe(true);
 
     expect(body).toHaveProperty('item_count');
     expect(typeof body.item_count).toBe('number');
+    expect(body.item_count).toBe(0);
+    expect(body.items).toEqual([]);
+
+    expect(body).toHaveProperty('token');
+    expect(body).toHaveProperty('total_price');
+    expect(typeof body.total_price).toBe('number');
   });
 });

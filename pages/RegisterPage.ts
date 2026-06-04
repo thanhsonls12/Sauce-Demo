@@ -48,6 +48,22 @@ export class RegisterPage extends BasePage {
     await this.passwordInput.fill(password);
   }
 
+  async fillFirstName(firstName: string) {
+    await this.firstNameInput.fill(firstName);
+  }
+
+  async fillLastName(lastName: string) {
+    await this.lastNameInput.fill(lastName);
+  }
+
+  async fillEmail(email: string) {
+    await this.emailInput.fill(email);
+  }
+
+  async fillPassword(password: string) {
+    await this.passwordInput.fill(password);
+  }
+
   async clearRegisterForm() {
     await this.firstNameInput.clear();
     await this.lastNameInput.clear();
@@ -69,15 +85,24 @@ export class RegisterPage extends BasePage {
 
   async submitRegisterForm() {
     const navigation = this.page
-      .waitForURL((url) => !/\/account\/register/.test(url.pathname), { timeout: timeouts.networkIdle })
+      .waitForURL((url) => !/\/account\/register/.test(url.pathname), {
+        timeout: timeouts.networkIdle,
+      })
       .catch(() => null);
     await this.createButton.click();
+    if (await this.hcaptchaText.isVisible().catch(() => false)) {
+      await this.page.waitForTimeout(15_000).catch(() => {});
+    }
     await navigation;
   }
 
   async accountCreated() {
-    await this.page.waitForLoadState('domcontentloaded', { timeout: timeouts.load }).catch(() => {});
-    await this.page.waitForLoadState('networkidle', { timeout: timeouts.networkIdle }).catch(() => {});
+    await this.page
+      .waitForLoadState('domcontentloaded', { timeout: timeouts.load })
+      .catch(() => {});
+    await this.page
+      .waitForLoadState('networkidle', { timeout: timeouts.networkIdle })
+      .catch(() => {});
 
     const currentUrl = this.page.url();
     if (
@@ -116,7 +141,9 @@ export class RegisterPage extends BasePage {
   }
 
   async expectRegisterProtected() {
-    await this.page.waitForLoadState('domcontentloaded', { timeout: timeouts.load }).catch(() => {});
+    await this.page
+      .waitForLoadState('domcontentloaded', { timeout: timeouts.load })
+      .catch(() => {});
 
     if (/\/account\/register/.test(this.page.url())) {
       await expect(this.hcaptchaText).toBeVisible();
@@ -124,6 +151,42 @@ export class RegisterPage extends BasePage {
     }
 
     await expect(this.page).toHaveURL(/https:\/\/sauce-demo\.myshopify\.com\/?$/);
+  }
+
+  async expectFirstNameRequiredError() {
+    await expect(this.page.getByText(/first name can't be blank/i)).toBeVisible({
+      timeout: timeouts.navigation,
+    });
+  }
+
+  async expectLastNameRequiredError() {
+    await expect(this.page.getByText(/last name can't be blank/i)).toBeVisible({
+      timeout: timeouts.navigation,
+    });
+  }
+
+  async expectEmailRequiredError() {
+    await expect(this.page.getByText(/email can't be blank/i)).toBeVisible({
+      timeout: timeouts.navigation,
+    });
+  }
+
+  async expectInvalidEmailError() {
+    await expect(this.page.getByText(/email is invalid/i)).toBeVisible({
+      timeout: timeouts.navigation,
+    });
+  }
+
+  async expectPasswordRequiredError() {
+    await expect(this.page.getByText(/password can't be blank/i)).toBeVisible({
+      timeout: timeouts.navigation,
+    });
+  }
+
+  async expectPasswordTooShortError() {
+    await expect(this.page.getByText(/password is too short \(minimum is 5 characters\)/i)).toBeVisible({
+      timeout: timeouts.navigation,
+    });
   }
 
   currentUrl() {

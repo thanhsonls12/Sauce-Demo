@@ -3,7 +3,7 @@ import { products, productVariants } from '@/test-data/products';
 
 test.describe('Trang chi tiết sản phẩm @real', () => {
   products.forEach((product) => {
-    test(`PROD-003: trang chi tiết ${product.name} hiển thị đúng tên và giá`, async ({
+    test(`PROD-001: trang chi tiết ${product.name} hiển thị đúng tên và giá`, async ({
       productPage,
     }) => {
       await productPage.goTo(product.slug);
@@ -13,7 +13,9 @@ test.describe('Trang chi tiết sản phẩm @real', () => {
     });
   });
 
-  test('PROD-004: Brown Shades hết hàng nên không thêm được vào giỏ hàng', async ({ productPage }) => {
+  test('PROD-002: Brown Shades hết hàng nên không thêm được vào giỏ hàng', async ({
+    productPage,
+  }) => {
     const brownShades = products.find((p) => p.name === 'Brown Shades')!;
 
     await productPage.goTo(brownShades.slug);
@@ -23,7 +25,7 @@ test.describe('Trang chi tiết sản phẩm @real', () => {
     await productPage.expectSoldOutVisible();
   });
 
-  test('PROD-005: người dùng chọn được size và màu sản phẩm', async ({ productPage }) => {
+  test('PROD-003: người dùng chọn được size và màu sản phẩm', async ({ productPage }) => {
     const noirJacket = products.find((p) => p.name === 'Noir jacket')!;
     const { size, color, displayText } = productVariants.noirJacket;
 

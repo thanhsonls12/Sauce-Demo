@@ -48,4 +48,26 @@ test.describe('Điều hướng @real', () => {
 
     await blogPage.expectLoaded();
   });
+
+  test('NAV-007: người dùng vào được Wish List từ trang chủ', async ({
+    homePage,
+    wishListPage,
+  }) => {
+    await homePage.goTo();
+
+    await homePage.goToWishList();
+
+    await wishListPage.expectLoaded();
+  });
+
+  test('NAV-008: người dùng vào được Refer a Friend từ trang chủ', async ({
+    homePage,
+    referAFriendPage,
+  }) => {
+    await homePage.goTo();
+
+    await homePage.goToReferAFriend();
+
+    await referAFriendPage.expectLoaded();
+  });
 });

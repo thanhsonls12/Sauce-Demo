@@ -20,6 +20,20 @@ import {
   killProcessTree,
 } from './camoufox';
 
+const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, label: string) => {
+  let timeout: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error(`${label} timed out`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+};
+
 import { HomePage } from '@/pages/HomePage';
 import { CatalogPage } from '@/pages/CatalogPage';
 import { ProductPage } from '@/pages/ProductPage';
@@ -28,6 +42,8 @@ import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { SearchPage } from '@/pages/SearchPage';
 import { AboutPage } from '@/pages/AboutPage';
+import { WishListPage } from '@/pages/WishListPage';
+import { ReferAFriendPage } from '@/pages/ReferAFriendPage';
 import { BlogPage } from '@/pages/BlogPage';
 import { CheckoutPage } from '@/pages/CheckoutPage';
 
@@ -42,6 +58,8 @@ type PageFixtures = {
   registerPage: RegisterPage;
   searchPage: SearchPage;
   aboutPage: AboutPage;
+  wishListPage: WishListPage;
+  referAFriendPage: ReferAFriendPage;
   blogPage: BlogPage;
   checkoutPage: CheckoutPage;
 };
@@ -70,10 +88,14 @@ export const test = base.extend<PageFixtures, { browser: Browser }>({
 
     if (useCamoufox) {
       mkdirSync(path.dirname(storageStatePath), { recursive: true });
-      await context
-        .storageState({ path: storageStatePath })
-        .catch((e) => console.warn('[camoufox] storageState failed:', e));
-      await context.close().catch((e) => console.warn('[camoufox] context.close failed:', e));
+      await withTimeout(
+        context.storageState({ path: storageStatePath }),
+        timeouts.element,
+        '[camoufox] storageState'
+      ).catch((e) => console.warn('[camoufox] storageState failed:', e));
+      await withTimeout(context.close(), timeouts.element, '[camoufox] context.close').catch((e) =>
+        console.warn('[camoufox] context.close failed:', e)
+      );
     }
   },
 
@@ -150,6 +172,8 @@ export const test = base.extend<PageFixtures, { browser: Browser }>({
   registerPage: async ({ page }, use) => { await use(new RegisterPage(page)); },
   searchPage: async ({ page }, use) => { await use(new SearchPage(page)); },
   aboutPage: async ({ page }, use) => { await use(new AboutPage(page)); },
+  wishListPage: async ({ page }, use) => { await use(new WishListPage(page)); },
+  referAFriendPage: async ({ page }, use) => { await use(new ReferAFriendPage(page)); },
   blogPage: async ({ page }, use) => { await use(new BlogPage(page)); },
   checkoutPage: async ({ page }, use) => { await use(new CheckoutPage(page)); },
 });
