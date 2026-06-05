@@ -1,9 +1,8 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '@/fixtures/page.fixture';
-import { products, productVariants } from '@/test-data/products';
+import { productVariants } from '@/test-data/products';
 import { routes } from '@/test-data/routes';
 
-const greyJacket = products.find((p) => p.name === 'Grey jacket')!;
 const { variantId: greyJacketVariantId } = productVariants.greyJacket;
 const soldOutVariantId = '1063105029';
 const requestDelayMs = 1500;
@@ -41,9 +40,7 @@ test.describe('API thay đổi giỏ hàng @real @mutation', () => {
     await page.waitForTimeout(requestDelayMs);
   });
 
-  test('CART-QTY-ADD-001: /cart/add.js chỉ chấp nhận quantity hợp lệ', async ({
-    page,
-  }) => {
+  test('API-CART-002: /cart/add.js chỉ chấp nhận quantity hợp lệ', async ({ page }) => {
     const addZeroResponse = await cartFetch(page, '/cart/add.js', {
       id: greyJacketVariantId,
       quantity: '0',
@@ -74,9 +71,26 @@ test.describe('API thay đổi giỏ hàng @real @mutation', () => {
     expect([400, 422]).toContain(addNonNumericResponse.status);
   });
 
-  test('CART-QTY-CHANGE-001: /cart/change.js chỉ chấp nhận quantity hợp lệ', async ({
-    page,
-  }) => {
+  test('API-CART-003: POST /cart/add.js với invalid product ID trả về lỗi', async ({ page }) => {
+    const addResponse = await cartFetch(page, '/cart/add.js', {
+      id: '99999999999999',
+      quantity: '1',
+    });
+
+    expect([404, 422]).toContain(addResponse.status);
+    expect(addResponse.body).toHaveProperty('message');
+  });
+
+  test('API-CART-004: POST /cart/add.js với sold-out product phải bị chặn', async ({ page }) => {
+    const addResponse = await cartFetch(page, '/cart/add.js', {
+      id: soldOutVariantId,
+      quantity: '1',
+    });
+
+    expect([400, 422]).toContain(addResponse.status);
+  });
+
+  test('API-CART-005: /cart/change.js chỉ chấp nhận quantity hợp lệ', async ({ page }) => {
     await cartFetch(page, '/cart/add.js', {
       id: greyJacketVariantId,
       quantity: '2',
@@ -115,22 +129,19 @@ test.describe('API thay đổi giỏ hàng @real @mutation', () => {
     expect(changeZeroResponse.body.items).toEqual([]);
   });
 
-  test('CART-ERR-001: POST /cart/add.js với invalid product ID trả về lỗi', async ({ page }) => {
-    const addResponse = await cartFetch(page, '/cart/add.js', {
+  test('API-CART-006: POST /cart/change.js với item không tồn tại trả về lỗi', async ({ page }) => {
+    const invalidLineResponse = await cartFetch(page, '/cart/change.js', {
+      line: '999',
+      quantity: '1',
+    });
+
+    expect([400, 404, 422]).toContain(invalidLineResponse.status);
+
+    const invalidIdResponse = await cartFetch(page, '/cart/change.js', {
       id: '99999999999999',
       quantity: '1',
     });
 
-    expect([404, 422]).toContain(addResponse.status);
-    expect(addResponse.body).toHaveProperty('message');
-  });
-
-  test('CART-ERR-002: POST /cart/add.js với sold-out product phải bị chặn', async ({ page }) => {
-    const addResponse = await cartFetch(page, '/cart/add.js', {
-      id: soldOutVariantId,
-      quantity: '1',
-    });
-
-    expect([400, 422]).toContain(addResponse.status);
+    expect([400, 404, 422]).toContain(invalidIdResponse.status);
   });
 });

@@ -30,7 +30,7 @@ test.describe('Trang register @real', () => {
     await registerPage.expectRegisterFormValues('', '', '', '');
   });
 
-  test('AUTH-VAL-004: Register với empty password field hiển thị validation error', async ({
+  test('REG-VAL-001: Register với empty password field hiển thị validation error', async ({
     registerPage,
   }) => {
     await registerPage.goTo();
@@ -43,7 +43,7 @@ test.describe('Trang register @real', () => {
     await registerPage.expectPasswordRequiredError();
   });
 
-  test('AUTH-VAL-006: Register với weak password hiển thị validation error', async ({
+  test('REG-VAL-002: Register với weak password hiển thị validation error', async ({
     registerPage,
   }) => {
     await registerPage.goTo();
@@ -56,7 +56,7 @@ test.describe('Trang register @real', () => {
     await registerPage.expectPasswordTooShortError();
   });
 
-  test('AUTH-VAL-007: Register với invalid email format hiển thị validation error', async ({
+  test('REG-VAL-003: Register với invalid email format hiển thị validation error', async ({
     registerPage,
   }) => {
     await registerPage.goTo();

@@ -47,7 +47,7 @@ test.describe('Trang login @real', () => {
     await loginPage.expectInvalidLoginError();
   });
 
-  test('AUTH-VAL-001: login với empty email field hiển thị validation error', async ({
+  test('LOG-VAL-001: login với empty email field hiển thị validation error', async ({
     loginPage,
   }) => {
     await loginPage.goTo();
@@ -60,7 +60,7 @@ test.describe('Trang login @real', () => {
     await loginPage.expectEmailRequiredError();
   });
 
-  test('AUTH-VAL-002: login với empty password field hiển thị validation error', async ({
+  test('LOG-VAL-002: login với empty password field hiển thị validation error', async ({
     loginPage,
   }) => {
     await loginPage.goTo();
@@ -73,7 +73,7 @@ test.describe('Trang login @real', () => {
     await loginPage.expectPasswordRequiredError();
   });
 
-  test('AUTH-VAL-003: login với invalid email format hiển thị validation error', async ({
+  test('LOG-VAL-003: login với invalid email format hiển thị validation error', async ({
     loginPage,
   }) => {
     await loginPage.goTo();
@@ -97,7 +97,7 @@ test.describe('Trang login @real', () => {
     await loginPage.expectInvalidEmailFormatError();
   });
 
-  test('AUTH-VAL-004: login với password quá ngắn hiển thị validation error', async ({
+  test('LOG-VAL-004: login với password quá ngắn hiển thị validation error', async ({
     loginPage,
   }) => {
     await loginPage.goTo();

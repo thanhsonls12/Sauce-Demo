@@ -45,7 +45,7 @@ test.describe('Authentication Security Tests @real @security', () => {
     await expectRegisterRejectsEmailPayload(page, registerPage, '!@domainn.com');
   });
 
-  test('AUTH-SEC-004: login phải reject email local-part chỉ là ký tự đặc biệt', async ({
+  test('AUTH-SEC-004: login bằng email chỉ chứa local-part là ký tự đặc biệt báo lỗi login chung', async ({
     page,
     loginPage,
   }) => {
@@ -55,7 +55,7 @@ test.describe('Authentication Security Tests @real @security', () => {
     await loginPage.fillLoginForm('!@domainn.com', 'Password123!');
     await loginPage.submitLoginForm();
 
-    await expect(page.getByText(/email is invalid/i)).toBeVisible({ timeout: 5000 });
+    await loginPage.expectInvalidLoginError();
     expect(await loginPage.accountIsLoaded()).toBe(false);
     await expect(page).not.toHaveURL(/\/account\/?$/);
   });

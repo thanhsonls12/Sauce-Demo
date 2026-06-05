@@ -40,10 +40,9 @@ test.describe('Luồng thanh toán đầu cuối @real @e2e @mutation', () => {
     await expect(checkoutPage.payNowBtn).toBeVisible();
   });
 
-  test('CHECKOUT-VAL-001: checkout với empty cart redirect về trang cart', async ({
+  test('REAL-CHECKOUT-002: checkout với empty cart redirect về trang cart', async ({
     page,
     cartPage,
-    checkoutPage,
   }) => {
     await page.goto(routes.cartClear);
     await cartPage.goTo();

@@ -10,6 +10,8 @@ export class LoginPage extends BasePage {
   readonly forgotPasswordText: Locator;
   readonly resetPasswordHeading: Locator;
   readonly resetEmailInput: Locator;
+  readonly resetSubmitButton: Locator;
+  readonly resetSuccessMessage: Locator;
   readonly loginForm: Locator;
   readonly signInButton: Locator;
   readonly hcaptchaText: Locator;
@@ -26,6 +28,8 @@ export class LoginPage extends BasePage {
     this.forgotPasswordText = page.getByText('Forgot your password?');
     this.resetPasswordHeading = page.getByRole('heading', { name: 'Reset Password' });
     this.resetEmailInput = page.locator('#recover-email');
+    this.resetSubmitButton = page.locator('form[action$="/account/recover"] input[type="submit"]');
+    this.resetSuccessMessage = page.getByText(/we'?ve sent you an email|email with a link|reset your password/i);
     this.hcaptchaText = page.getByText('Protected by hCaptcha').first();
     this.invalidLoginError = page.getByText(/incorrect email or password/i);
   }
@@ -75,6 +79,23 @@ export class LoginPage extends BasePage {
     await this.forgotPasswordText.click();
     await expect(this.resetPasswordHeading).toBeVisible();
     await expect(this.resetEmailInput).toBeVisible();
+  }
+
+  async requestPasswordReset(email: string) {
+    await this.expectForgotPasswordVisible();
+    await this.resetEmailInput.fill(email);
+    await this.resetSubmitButton.click();
+
+    if (await this.hcaptchaText.isVisible().catch(() => false)) {
+      await this.page.waitForTimeout(15_000).catch(() => {});
+    }
+
+    await this.page.waitForLoadState('domcontentloaded', { timeout: timeouts.navigation }).catch(() => {});
+  }
+
+  async expectPasswordResetRequested() {
+    await expect(this.page).toHaveURL(/account\/login/);
+    await expect(this.resetSuccessMessage).toBeVisible({ timeout: timeouts.navigation });
   }
 
   async submitLoginForm() {

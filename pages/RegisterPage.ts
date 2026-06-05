@@ -11,6 +11,7 @@ export class RegisterPage extends BasePage {
   readonly passwordInput: Locator;
   readonly createButton: Locator;
   readonly hcaptchaText: Locator;
+  readonly existingEmailError: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -22,6 +23,7 @@ export class RegisterPage extends BasePage {
     this.passwordInput = page.locator('input[name="customer[password]"]');
     this.createButton = page.locator('form[action$="/account"] input[type="submit"]');
     this.hcaptchaText = page.getByText('Protected by hCaptcha').first();
+    this.existingEmailError = page.getByText(/email address is already associated|email has already been taken|already have an account/i);
   }
 
   async goTo() {
@@ -175,6 +177,10 @@ export class RegisterPage extends BasePage {
     await expect(this.page.getByText(/email is invalid/i)).toBeVisible({
       timeout: timeouts.navigation,
     });
+  }
+
+  async expectExistingEmailError() {
+    await expect(this.existingEmailError).toBeVisible({ timeout: timeouts.navigation });
   }
 
   async expectPasswordRequiredError() {

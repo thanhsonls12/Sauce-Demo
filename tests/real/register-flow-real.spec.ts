@@ -70,4 +70,22 @@ test.describe('Luồng register thật @real @e2e @mutation', () => {
 
     await registerPage.expectRegisterProtected();
   });
+
+  test('REAL-REGISTER-002: register bằng email đã tồn tại bị từ chối', async ({
+    registerPage,
+  }) => {
+    const email = process.env.SHOPIFY_TEST_EMAIL;
+    const password = process.env.SHOPIFY_TEST_PASSWORD ?? 'Password123!';
+
+    test.skip(!email, 'Set SHOPIFY_TEST_EMAIL to an existing customer email.');
+
+    await registerPage.goTo();
+    await registerPage.expectLoaded();
+
+    await registerPage.fillRegisterForm('Existing', 'User', email!, password);
+    await registerPage.submitRegisterForm();
+
+    await registerPage.expectExistingEmailError();
+    await registerPage.expectLoaded();
+  });
 });

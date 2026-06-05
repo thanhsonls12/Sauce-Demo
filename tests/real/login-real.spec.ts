@@ -24,7 +24,7 @@ function loginCredentials() {
 }
 
 test.describe('Luồng login thật @real @e2e', () => {
-  test('REAL-LOGIN-001: login bằng tài khoản khách hàng thật', async ({ homePage, loginPage }) => {
+  test('REAL-LOGIN: login bằng tài khoản khách hàng thật', async ({ homePage, loginPage }) => {
     const credentials = loginCredentials();
 
     test.skip(
@@ -56,7 +56,7 @@ test.describe('Luồng login thật @real @e2e', () => {
     await homePage.logout();
   });
 
-  test('REAL-LOGIN-002: logout từ navbar khi đã login', async ({ homePage }) => {
+  test('REAL-LOGOUT: logout từ navbar khi đã login', async ({ homePage }) => {
     await homePage.goTo();
     await homePage.expectLoaded();
 
@@ -67,5 +67,22 @@ test.describe('Luồng login thật @real @e2e', () => {
     await homePage.logout();
     await homePage.expectLoaded();
     await expect(homePage.loginLink).toBeVisible();
+  });
+
+  test('REAL-PASSWORD: người dùng yêu cầu reset password bằng email thật', async ({
+    loginPage,
+  }) => {
+    const credentials = loginCredentials();
+
+    test.skip(
+      !credentials,
+      'Set SHOPIFY_TEST_EMAIL/SHOPIFY_TEST_PASSWORD or create an account via register flow first.'
+    );
+
+    await loginPage.goTo();
+    await loginPage.expectLoaded();
+
+    await loginPage.requestPasswordReset(credentials!.email);
+    await loginPage.expectPasswordResetRequested();
   });
 });

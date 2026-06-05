@@ -2,13 +2,7 @@ import { test, expect } from '@/fixtures/page.fixture';
 import { products } from '@/test-data/products';
 
 test.describe('Trang catalog @real', () => {
-  test('CAT-001: trang catalog mở được', async ({ catalogPage }) => {
-    await catalogPage.goTo();
-
-    await catalogPage.expectLoaded();
-  });
-
-  test('CAT-002: catalog hiển thị toàn bộ sản phẩm trong dữ liệu test', async ({ catalogPage }) => {
+  test('CAT-001: catalog hiển thị toàn bộ sản phẩm trong dữ liệu test', async ({ catalogPage }) => {
     await catalogPage.goTo();
     await catalogPage.expectLoaded();
 
@@ -17,7 +11,7 @@ test.describe('Trang catalog @real', () => {
     }
   });
 
-  test('CAT-003: catalog hiển thị trạng thái hết hàng cho sản phẩm hết hàng', async ({
+  test('CAT-002: catalog hiển thị trạng thái hết hàng cho sản phẩm hết hàng', async ({
     catalogPage,
     page,
   }) => {
@@ -37,7 +31,7 @@ test.describe('Trang catalog @real', () => {
     await catalogPage.expectSoldOutVisible();
   });
 
-  test('CAT-004: nhấn Grey jacket mở trang chi tiết sản phẩm', async ({ catalogPage, productPage }) => {
+  test('CAT-003: nhấn Grey jacket mở trang chi tiết sản phẩm', async ({ catalogPage, productPage }) => {
     const greyJacket = products.find((p) => p.name === 'Grey jacket')!;
 
     await catalogPage.goTo();

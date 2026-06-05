@@ -40,13 +40,13 @@ test.describe('API sản phẩm @real', () => {
     expect(body.variants.every((variant) => variant.available === false)).toBe(true);
   });
 
-  test('API-PROD-404: GET sản phẩm không tồn tại trả về 404', async ({ request }) => {
+  test('API-PROD-003: GET sản phẩm không tồn tại trả về 404', async ({ request }) => {
     const response = await request.get('/products/not-exist-product.js');
 
     expect(response.status()).toBe(404);
   });
 
-  test('PRODUCT-ERR-001: GET product API với malicious slug bị reject và không 5xx', async ({
+  test('API-PROD-004: GET product API với malicious slug bị reject và không 5xx', async ({
     request,
   }) => {
     const maliciousSlugs = [
